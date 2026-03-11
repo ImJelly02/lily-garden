@@ -9,6 +9,7 @@ A pastel scene built with [p5.js](https://p5js.org/). Soft-pastel lilies sway in
 ## 🧩 Elements
 
 - **Generative lilies**: Each flower blooms on load, with randomised petal colour, stem height, and depth layering
+- **Moon cycle**: A crescent moon slowly phases from new to full over time, casting soft light across the scene
 - **Organic wind simulation**: Multi-layered sine waves drive natural, non-repeating sway across stems, leaves, and petals
 - **Soft pastel chalk texture** - A static paper-grain canvas overlays the scene, mimicking the powdery surface of soft pastels
 - **Golden fish** - Tropical-style fish swim underwater, clipped 20% below the waterline, each with unique size and speed

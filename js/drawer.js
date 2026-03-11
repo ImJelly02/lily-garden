@@ -52,18 +52,22 @@ function drawMoonPhase(w, h, t) {
     }
   }
 
-  // Phase cycle by intersecting circles (waxing/waning limb)
+  // Phase cycle by intersecting circles (waxing/waning limb).
+  // Push the shadow fully off-disc at the extremes so the cycle includes
+  // a true full moon, and center it mid-cycle for a true new moon.
   let phase = (sin(t * 0.5) + 1) * 0.5; // 0..1
-  let shadowOffset = map(phase, 0, 1, r * 1.05, -r * 1.05);
+  let shadowOffset = map(phase, 0, 1, r * 2.2, -r * 2.2);
   let shadowCol = lerpRgb(COLORS.skyTop, COLORS.skyMid, 0.65);
 
-  noStroke();
-  setFill(shadowCol, 250);
-  ellipse(cx + shadowOffset, cy, r * 2.06, r * 2.06);
+  if (abs(shadowOffset) < r * 2.05) {
+    noStroke();
+    setFill(shadowCol, 250);
+    ellipse(cx + shadowOffset, cy, r * 2.06, r * 2.06);
 
-  // Slightly emphasize the circle-intersection edge
-  setFill(shadowCol, 85);
-  ellipse(cx + shadowOffset * 1.02, cy, r * 2.0, r * 2.0);
+    // Slightly emphasize the circle-intersection edge
+    setFill(shadowCol, 85);
+    ellipse(cx + shadowOffset * 1.02, cy, r * 2.0, r * 2.0);
+  }
 
   // Chalky moon rim texture — border color tinted toward groundFog for atmospheric haze
   let fogBorderCol = lerpRgb(moonCol, COLORS.groundFog, 0.55);

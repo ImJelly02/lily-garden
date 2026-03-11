@@ -60,9 +60,9 @@ lily-garden/
 
 ## 📌 Notes
 
-- The paper grain texture is generated once at startup via fractional Brownian motion noise and cached as an off-screen canvas - so it's fast and never repeats exactly
-- Fish are drawn using `drawingContext.clip()` to stay strictly below the waterline
-- All randomness is seeded fresh on each page load - every run is unique
+- The paper grain texture is generated once in `setup()` using layered noise and cached in an off-screen graphics buffer, so it is reused each frame instead of being rebuilt.
+- Fish are constrained below the waterline by their positioning and movement logic rather than by a canvas clipping mask.
+- The sketch does not explicitly set a random seed, so each page load naturally produces a different arrangement and motion pattern.
 
 ---
 

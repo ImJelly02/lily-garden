@@ -1,6 +1,6 @@
 # 🌸 Lily Oasis
 
-A pastel scene built with [p5.js](https://p5js.org/). Soft-pastel lilies sway in an organic wind, golden fish drift underwater, and pollens twinkle in a lavender sky. No frameworks, no build step.
+A pastel scene built with [p5.js](https://p5js.org/). Soft-pastel lilies sway in an organic wind, golden fish drift underwater, and pollens twinkle in a lavender sky. No frameworks or build step involved. [View the demo](https://imjelly02.github.io/lily-garden/)
 
 ![Lily Oasis preview](preview.png)
 

@@ -1,0 +1,42 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  background: #d8cdd8;
+  overflow: hidden;
+}
+
+canvas {
+  display: block;
+}
+
+#ui {
+  position: fixed;
+  bottom: 32px;
+  left: 50%;
+  transform: translateX(-50%);
+  text-align: center;
+  pointer-events: none;
+}
+
+#title {
+  font-family: 'Cormorant Garamond', serif;
+  font-weight: 300;
+  font-style: italic;
+  font-size: 28px;
+  letter-spacing: 0.5em;
+  color: rgba(100, 85, 95, 0.45);
+  margin-bottom: 6px;
+}
+
+#subtitle {
+  font-family: 'Cormorant Garamond', serif;
+  font-weight: 300;
+  font-size: 10px;
+  letter-spacing: 0.45em;
+  text-transform: uppercase;
+  color: rgba(120, 100, 110, 0.3);
+}

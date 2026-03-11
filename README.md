@@ -29,9 +29,9 @@ lily-garden/
     ├── colorSettings.js # All colour palettes and colour utilities
     ├── easing.js        # Math helpers: easeOut, organicSway, mapClamp
     ├── helpers.js       # p5 wrappers: setFill, setStroke, drawGlow
-    ├── texture.js       # Pastel paper grain, chalk edges, leaf stipple
-    ├── objects.js       # Classes: Lily, StemLeaf, Fish, PollenParticle, Ripple
-    ├── drawer.js        # Scene layers: sky, ground, mist, reflections, vignette
+    ├── texture.js       # Pastel paper grain, chalk edges, leaf stipple, etc.
+    ├── objects.js       # Classes: Lily, StemLeaf, Fish, PollenParticle, Ripple, etc.
+    ├── drawer.js        # Scene layers: sky, ground, mist, reflections, vignette, etc.
     └── sketch.js        # p5 setup() and draw() - thin orchestrator
 ```
 

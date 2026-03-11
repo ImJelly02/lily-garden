@@ -40,3 +40,10 @@ canvas {
   text-transform: uppercase;
   color: rgba(120, 100, 110, 0.3);
 }
+
+@media (max-width: 768px) {
+  #ui {
+    top: 32px;
+    bottom: auto;
+  }
+}

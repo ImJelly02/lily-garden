@@ -17,7 +17,7 @@ class Lily {
     // windPhase offsets each lily's sine wave so they don't all peak at the same moment.
     // windSpeed controls how fast that sine oscillates — wider range = more variety between lilies.
     this.windPhase = random(TWO_PI);      // random start position in the sway cycle
-    this.windSpeed = random(0.4, 1.3);    // oscillation rate multiplier (lower = lazier sway)
+    this.windSpeed = random(0.45, 0.95);  // oscillation rate multiplier (lower = lazier sway)
 
     // --- Bloom animation ---
     this.bloomT = 0;                      // 0 = tight bud, 1 = fully open; increases each frame
@@ -28,10 +28,13 @@ class Lily {
     // idleSway: a small constant sway so lilies gently breathe even in dead calm.
     // windLag: per-lily easing coefficient — smaller = slower to react to gusts.
     // localWind: this lily's own smoothed copy of the global windStrength.
-    this.swayAmt = random(10, 22);        // wind-driven sway amplitude (px)
-    this.idleSway = random(2, 5);         // calm-air sway amplitude (px)
-    this.windLag = random(0.15, 0.45);  // easing rate toward global wind (per frame)
-    this.localWind = 0.5;                   // smoothed wind value (starts calm)
+    this.swayAmt = random(9, 17);         // wind-driven sway amplitude (px)
+    this.idleSway = random(1.6, 3.2);     // calm-air sway amplitude (px)
+    this.windLag = random(0.07, 0.14);    // easing rate toward global wind (per frame)
+    this.localWind = 0;                   // smoothed wind value (starts calm)
+    this.bendVelocity = 0;                // stem inertia so gusts roll through instead of snapping
+    this.stemFlex = random(0.07, 0.12);   // how strongly the stem chases its target bend
+    this.stemDamping = random(0.86, 0.93); // how quickly bend motion settles
 
     // --- Runtime state ---
     this.headOffsetX = 0;                 // current horizontal displacement of flower head
@@ -81,7 +84,7 @@ class Lily {
 
     // Smooth this lily's wind toward the global windStrength at its own pace.
     // Low windLag (0.015) = slow, dreamy reaction; high (0.045) = quicker response.
-    this.localWind += (windStrength - this.localWind) * this.windLag;
+    this.localWind = approach(this.localWind, windStrength, this.windLag);
 
     // organicSway returns roughly -1 to 1 using layered sine waves,
     let organic = organicSway(t, this.windPhase, this.windSpeed);
@@ -89,9 +92,13 @@ class Lily {
     let idle = organic * this.idleSway;                 // always-on gentle breathing (2-5 px)
     let wind = organic * this.localWind * this.swayAmt; // wind-driven push (up to ~22 px)
     let sway = idle + wind;
+    let prevOffsetX = this.headOffsetX;
+    let maxBend = this.stemHeight * 0.2;
 
-    this.headOffsetX = sway;              // horizontal displacement of flower head
-    this.headOffsetY = abs(sway) * 0.18;  // vertical droop — the harder the push, the more it bows
+    this.bendVelocity += (sway - prevOffsetX) * this.stemFlex;
+    this.bendVelocity *= this.stemDamping;
+    this.headOffsetX = constrain(prevOffsetX + this.bendVelocity, -maxBend, maxBend);
+    this.headOffsetY = abs(this.headOffsetX) * 0.08 + abs(this.bendVelocity) * 1.1;
   }
 
   draw(t) {
@@ -245,9 +252,9 @@ class StemLeaf {
     let ty = lerp(baseY, tipY, this.stemT);
 
     // Leaf sway follows stem but less
-    let sway = organicSway(t, this.windPhase, 0.9) * headOffsetX * 0.3;
+    let sway = organicSway(t, this.windPhase, 0.7) * headOffsetX * 0.18;
     // Angle leaf upward along the stem with a slight outward tilt
-    let leafAngle = this.side * 0.45 + sway * 0.015; // radians, with sway influence
+    let leafAngle = this.side * 0.45 + sway * 0.013; // radians, with sway influence
 
     push();
     translate(tx, ty);
@@ -332,6 +339,10 @@ class Fish {
     this.y = groundY + random((canvasH - groundY) * 0.24, (canvasH - groundY) * 0.72);
     this.vx = random(0.25, 0.65) * this.dir;
     this.targetY = this.y;
+    this.targetTimer = random(80, 180); //
+    this.verticalVelocity = 0;
+    this.steerX = 0;
+    this.steerY = 0;
     this.wobblePhase = random(TWO_PI);
     this.wobbleSpeed = random(0.02, 0.04);
     this.tailPhase = random(TWO_PI);
@@ -489,3 +500,4 @@ class Ripple {
 
   isDead() { return this.life <= 0 || this.r > this.maxR; }
 }
+

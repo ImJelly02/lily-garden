@@ -11,6 +11,7 @@ let t = 0;              // global time counter
 let windStrength = 0;   // current wind (-1 to 1)
 let windTarget = 0;     // wind we're easing toward
 let windChangeTimer = 0;
+let windGust = 0;       // short-lived gust impulse from clicks
 
 const GROUND_Y_RATIO = 0.72;
 const NUM_POLLEN = 68;
@@ -77,12 +78,20 @@ function placeFishSafely(f, w, h, groundY, school, lilies, fromEdge) {
 
     f.y = random(swimTop, swimBottom);
     f.targetY = f.y;
+    f.targetTimer = random(90, 180);
+    f.verticalVelocity = 0;
+    f.steerX = 0;
+    f.steerY = 0;
     if (isFishPositionClear(f, school, lilies, groundY, f)) return;
   }
 
   f.x = constrain(f.x, -120, w + 120);
   f.y = constrain(f.y, swimTop, swimBottom);
   f.targetY = f.y;
+  f.targetTimer = random(90, 180);
+  f.verticalVelocity = 0;
+  f.steerX = 0;
+  f.steerY = 0;
 }
 
 function steerFishAwayFromObstacles(f, school, lilies, groundY, swimTop, swimBottom) {
@@ -116,11 +125,12 @@ function steerFishAwayFromObstacles(f, school, lilies, groundY, swimTop, swimBot
     pushY += abs(dy / d) * strength * 1.1;
   }
 
-  if (pushX !== 0 || pushY !== 0) {
-    f.x += pushX;
-    f.y = constrain(f.y + pushY, swimTop, swimBottom);
-    f.targetY = constrain(f.targetY + pushY * 6, swimTop, swimBottom);
-  }
+  f.steerX = approach(f.steerX || 0, pushX, 0.12);
+  f.steerY = approach(f.steerY || 0, pushY, 0.1);
+
+  f.x += f.steerX;
+  f.y = constrain(f.y + f.steerY, swimTop, swimBottom);
+  f.targetY = constrain(f.targetY + f.steerY * 1.4, swimTop, swimBottom);
 }
 
 function buildFishSchool(count, w, h, groundY, lilies) {
@@ -143,10 +153,17 @@ function updateFishMotion(f, school, lilies, windStrength, t, groundY, w, h) {
   f.x += f.vx + windStrength * 0.15;
 
   if (f.targetY === undefined) f.targetY = f.y;
-  if (abs(f.y - f.targetY) < 3) {
+  if (f.targetTimer === undefined) f.targetTimer = random(80, 180);
+  f.targetTimer -= 1;
+
+  if (f.targetTimer <= 0 || abs(f.y - f.targetY) < 10) {
     f.targetY = random(swimTop, swimBottom);
+    f.targetTimer = random(90, 220);
   }
-  f.y = approach(f.y, f.targetY, 0.012) + smoothWave(t, 1, f.wobblePhase) * 0.18;
+
+  let desiredYVelocity = (f.targetY - f.y) * 0.02;
+  f.verticalVelocity = approach(f.verticalVelocity || 0, desiredYVelocity, 0.08);
+  f.y += f.verticalVelocity + smoothWave(t, 0.8, f.wobblePhase) * 0.12;
   f.y = constrain(f.y, swimTop, swimBottom);
   steerFishAwayFromObstacles(f, school, lilies, groundY, swimTop, swimBottom);
 
@@ -246,10 +263,12 @@ function draw() {
   // Update wind
   windChangeTimer -= deltaTime;
   if (windChangeTimer <= 0) {
-    windTarget = random(-1, 1) * random(0.4, 1.0);
+    windTarget = random(-0.7, 0.7) * random(0.4, 0.9);
     windChangeTimer = random(2000, 5000);
   }
-  windStrength += (windTarget - windStrength) * 0.02;
+  windStrength += (windTarget - windStrength) * 0.018;
+  windGust = approach(windGust, 0, 0.035);
+  let sceneWind = constrain(windStrength + windGust, -0.9, 0.9);
 
   let groundY = height * GROUND_Y_RATIO;
 
@@ -261,7 +280,7 @@ function draw() {
 
   // Fish in the water
   for (let f of fish) {
-    updateFishMotion(f, fish, lilies, windStrength, t, groundY, width, height);
+    updateFishMotion(f, fish, lilies, sceneWind, t, groundY, width, height);
     f.draw();
   }
 
@@ -269,7 +288,7 @@ function draw() {
 
   // Update & draw lilies (back to front via depth sort)
   for (let lily of lilies) {
-    lily.update(windStrength, t);
+    lily.update(sceneWind, t);
     lily.draw(t);
   }
 
@@ -278,7 +297,7 @@ function draw() {
 
   // Pollen
   for (let p of pollenParticles) {
-    p.update(windStrength, t);
+    p.update(sceneWind, t);
     p.draw();
   }
 
@@ -329,9 +348,12 @@ function mousePressed() {
     }
   }
 
-  windTarget = random(1) > 0.5 ? random(0.6, 1.2) : random(-1.2, -0.6);
-  windStrength = windTarget * 0.5; // instant gust on click
-  windChangeTimer = 3000;
+  let gustDir = mouseX >= width * 0.5 ? -1 : 1;
+  let gustAmount = random(0.26, 0.46) * gustDir;
+  windGust = constrain(windGust + gustAmount, -0.6, 0.6);
+  windTarget += gustAmount * 0.4;
+  windTarget = constrain(windTarget, -0.8, 0.8);
+  windChangeTimer = 2200;
 }
 
 function windowResized() {
